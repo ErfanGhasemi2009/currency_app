@@ -34,11 +34,11 @@ class MyApp extends StatelessWidget {
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
         colorScheme: const ColorScheme.light(
-          primary: Color(0xff45B7D1),
-          onPrimary: Color(0xffFFFFFF),
-          onSurface: Color(0xff4A5253),
-          onSecondary: Color(0xff4A5253)
-        ),
+            primary: Color.fromARGB(255, 38, 165, 194),
+            secondary: Color.fromARGB(255, 206, 223, 234),
+            onPrimary: Color(0xffFFFFFF),
+            onSurface: Color(0xff4A5253),
+            onSecondary: Color(0xff4A5253)),
         textTheme: TextTheme(
             headlineLarge: TextStyle(
                 fontFamily: defaultFontName,
@@ -52,7 +52,6 @@ class MyApp extends StatelessWidget {
             bodyMedium: TextStyle(
                 fontFamily: defaultFontName,
                 color: Theme.of(context).colorScheme.onSurface,
-                
                 fontSize: 20)),
 
         useMaterial3: true,
@@ -93,7 +92,7 @@ class HomeScreen extends StatelessWidget {
         children: [
           Positioned.fill(
               child: Opacity(
-            opacity: 0.7,
+            opacity: 0.6,
             child: Image.asset(
               'assets/images/background_ui.jpg',
               width: MediaQuery.of(context).size.width,
@@ -101,28 +100,141 @@ class HomeScreen extends StatelessWidget {
               fit: BoxFit.fill,
             ),
           )),
-          Positioned.fill(
-              child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'نرخ ارز آزاد چیست ؟',
-                  style: themeData.textTheme.titleLarge,
-                ),
-                const SizedBox(
-                  height: 8,
-                ),
-                Text(
-                  textAlign: TextAlign.start,
-                  'نرخ ارزها در معاملات نقدی و رایج روزانه است معاملات نقدی معاملاتی هستند که خریدار و فروشنده به محض انجام معامله، ارز و ریال را با هم تبادل می نمایند.', style: themeData.textTheme.bodyMedium,
-                )
-              ],
-            ),
-          ))
+          SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Positioned.fill(
+                child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'نرخ ارز آزاد چیست ؟',
+                    style: themeData.textTheme.titleLarge,
+                  ),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  Text(
+                    textAlign: TextAlign.start,
+                    'نرخ ارزها در معاملات نقدی و رایج روزانه است معاملات نقدی معاملاتی هستند که خریدار و فروشنده به محض انجام معامله، ارز و ریال را با هم تبادل می نمایند.',
+                    style: themeData.textTheme.bodyMedium,
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  Container(
+                    height: 45,
+                    decoration: BoxDecoration(
+                        color: themeData.colorScheme.primary,
+                        borderRadius: BorderRadius.circular(22)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Text(
+                          'نام ارز',
+                          style: themeData.textTheme.bodyMedium!
+                              .apply(color: themeData.colorScheme.onPrimary),
+                        ),
+                        Text('قیمت',
+                            style: themeData.textTheme.bodyMedium!
+                                .apply(color: themeData.colorScheme.onPrimary)),
+                        Text('تغییر',
+                            style: themeData.textTheme.bodyMedium!
+                                .apply(color: themeData.colorScheme.onPrimary)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  SizedBox(
+                    height: 400,
+                    width: double.infinity,
+                    child: ListView.builder(
+                      physics:const ClampingScrollPhysics(),
+                        itemCount: 20,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            height: 45,
+                            margin: const EdgeInsets.only(top: 6, bottom: 6),
+                            decoration: BoxDecoration(
+                                color: themeData.colorScheme.secondary,
+                                borderRadius: BorderRadius.circular(22)),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Text(
+                                  'دلار',
+                                  style: themeData.textTheme.bodyMedium!.apply(
+                                      color: themeData.colorScheme.onSurface),
+                                ),
+                                Text('5700000',
+                                    style: themeData.textTheme.bodyMedium!.apply(
+                                        color: themeData.colorScheme.onSurface)),
+                                Text('+5%',
+                                    style: themeData.textTheme.bodyMedium!
+                                        .apply(color: greenChart)),
+                              ],
+                            ),
+                          );
+                        }),
+                  ),
+                  const SizedBox(
+                    height: 32,
+                  ),
+                  Container(
+                    height: 45,
+                    margin: const EdgeInsets.only(top: 6, bottom: 6),
+                    decoration: BoxDecoration(
+                        color: themeData.colorScheme.secondary,
+                        borderRadius: BorderRadius.circular(22)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Text(
+                          'آخرین بروزرسانی :',
+                          style: themeData.textTheme.bodyMedium!
+                              .apply(color: themeData.colorScheme.onSurface),
+                        ),
+                        Text(_getTime(),
+                            style: themeData.textTheme.bodyMedium!
+                                .apply(color: themeData.colorScheme.onSurface)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  InkWell(
+                    onTap: () => 
+                    _getTime(),
+                    child: Container(
+                      height: 45,
+                      decoration: BoxDecoration(
+                          color: themeData.colorScheme.primary,
+                          borderRadius: BorderRadius.circular(22)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'بروزرسانی',
+                            style: themeData.textTheme.headlineLarge,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )),
+          )
         ],
       ),
     );
+  }
+
+  String _getTime() {
+    return TimeOfDay.now().toString();
   }
 }
