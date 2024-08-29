@@ -5,6 +5,10 @@ class Currency {
   final String? changes;
   final String? status;
 
-  Currency(this.title, this.price, this.changes, this.status, this.id);
-  
+  Currency.fromJson(Map<String, dynamic> json)
+      : id = json['id'],
+        title = json['title'],
+        price = json['price'],
+        changes = json['changes'],
+        status = json['status'];
 }

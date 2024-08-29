@@ -1,16 +1,26 @@
+import 'package:currency_app/api/server.dart';
+import 'package:currency_app/models/currency.dart';
+import 'package:currency_app/widgets/time.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 void main() {
+  HttpRequest().getCurrency();
   runApp(const MyApp());
 }
 
 const Color greenChart = Color(0xff0EC771);
 const Color redChart = Color(0xffB91319);
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -52,7 +62,11 @@ class MyApp extends StatelessWidget {
             bodyMedium: TextStyle(
                 fontFamily: defaultFontName,
                 color: Theme.of(context).colorScheme.onSurface,
-                fontSize: 20)),
+                fontSize: 20),
+            bodySmall: TextStyle(
+                fontFamily: defaultFontName,
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 16)),
 
         useMaterial3: true,
       ),
@@ -62,12 +76,18 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
+    final time = Time().getTime();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: themeData.colorScheme.primary,
@@ -92,7 +112,7 @@ class HomeScreen extends StatelessWidget {
         children: [
           Positioned.fill(
               child: Opacity(
-            opacity: 0.6,
+            opacity: 0.3,
             child: Image.asset(
               'assets/images/background_ui.jpg',
               width: MediaQuery.of(context).size.width,
@@ -149,36 +169,9 @@ class HomeScreen extends StatelessWidget {
                     height: 16,
                   ),
                   SizedBox(
-                    height: 400,
+                    height: MediaQuery.of(context).size.height/2,
                     width: double.infinity,
-                    child: ListView.builder(
-                      physics:const ClampingScrollPhysics(),
-                        itemCount: 20,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            height: 45,
-                            margin: const EdgeInsets.only(top: 6, bottom: 6),
-                            decoration: BoxDecoration(
-                                color: themeData.colorScheme.secondary,
-                                borderRadius: BorderRadius.circular(22)),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                Text(
-                                  'دلار',
-                                  style: themeData.textTheme.bodyMedium!.apply(
-                                      color: themeData.colorScheme.onSurface),
-                                ),
-                                Text('5700000',
-                                    style: themeData.textTheme.bodyMedium!.apply(
-                                        color: themeData.colorScheme.onSurface)),
-                                Text('+5%',
-                                    style: themeData.textTheme.bodyMedium!
-                                        .apply(color: greenChart)),
-                              ],
-                            ),
-                          );
-                        }),
+                    child: FutureListDataBuilder(themeData),
                   ),
                   const SizedBox(
                     height: 32,
@@ -197,7 +190,7 @@ class HomeScreen extends StatelessWidget {
                           style: themeData.textTheme.bodyMedium!
                               .apply(color: themeData.colorScheme.onSurface),
                         ),
-                        Text(_getTime(),
+                        Text(time,
                             style: themeData.textTheme.bodyMedium!
                                 .apply(color: themeData.colorScheme.onSurface)),
                       ],
@@ -207,10 +200,15 @@ class HomeScreen extends StatelessWidget {
                     height: 16,
                   ),
                   InkWell(
-                    onTap: () => 
-                    _getTime(),
+                    onTap: () {
+                      setState(() {
+                        time;
+                        FutureListDataBuilder(themeData);
+                      });
+                    },
                     child: Container(
                       height: 45,
+                      width: double.infinity,
                       decoration: BoxDecoration(
                           color: themeData.colorScheme.primary,
                           borderRadius: BorderRadius.circular(22)),
@@ -234,7 +232,63 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  String _getTime() {
-    return TimeOfDay.now().toString();
+  FutureBuilder<List<Currency>> FutureListDataBuilder(ThemeData themeData) {
+    return FutureBuilder<List<Currency>>(
+      future: HttpRequest().getCurrency(),
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        if (snapshot.hasData && snapshot.data != null) {
+          return ListView.builder(
+              physics: const ClampingScrollPhysics(),
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                return ItemCurrency(
+                  themeData: themeData,
+                  currencyData: snapshot.data[index],
+                );
+              });
+        } else {
+          return const Center(child: CircularProgressIndicator());
+        }
+      },
+    );
+  }
+}
+
+class ItemCurrency extends StatelessWidget {
+  const ItemCurrency({
+    super.key,
+    required this.themeData,
+    required this.currencyData,
+  });
+
+  final ThemeData themeData;
+  final Currency currencyData;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 45,
+      margin: const EdgeInsets.only(top: 6, bottom: 6),
+      decoration: BoxDecoration(
+          color: themeData.colorScheme.secondary,
+          borderRadius: BorderRadius.circular(22)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            currencyData.title!,
+            style: themeData.textTheme.bodySmall!
+                .apply(color: themeData.colorScheme.onSurface),
+          ),
+          Text(currencyData.price!,
+              style: themeData.textTheme.bodySmall!
+                  .apply(color: themeData.colorScheme.onSurface)),
+          Text(currencyData.changes!,
+              style: themeData.textTheme.bodySmall!.apply(
+                  color: currencyData.status == 'p' ? greenChart : redChart)),
+        ],
+      ),
+    );
   }
 }
